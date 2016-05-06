@@ -16,6 +16,9 @@
 #include "algorithm/animecoin.h"
 #include "algorithm/inkcoin.h"
 #include "algorithm/quarkcoin.h"
+// Espers' HMQ1725 Add-in
+#include "algorithm/hmq1725.h"
+//
 #include "algorithm/qubitcoin.h"
 #include "algorithm/sifcoin.h"
 #include "algorithm/darkcoin.h"
@@ -50,6 +53,7 @@ const char *algorithm_type_str[] = {
   "X15",
   "Keccak",
   "Quarkcoin",
+  "HMQ1725",
   "Twecoin",
   "Fugue256",
   "NIST",
@@ -765,6 +769,12 @@ static algorithm_settings_t algos[] = {
   A_QUARK("animecoin", animecoin_regenhash),
   A_QUARK("sifcoin", sifcoin_regenhash),
 #undef A_QUARK
+
+  // kernels starting from this will have difficulty calculated by using Espers' HMQ1725 algorithm
+#define A_HMQ1725(a, b) \
+  { a, ALGO_HMQ1725, "", 1, 65536, 65536, 0, 0, 0xFF, 0xFFFFFFULL, 0x0000ffffUL, 0, 0, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, b, queue_sph_kernel, gen_hash, append_x11_compiler_options }
+  A_HMQ1725("hmq1725", hmq1725_regenhash),
+#undef A_HMQ1725
 
   // kernels starting from this will have difficulty calculated by using bitcoin algorithm
 #define A_DARK(a, b) \
