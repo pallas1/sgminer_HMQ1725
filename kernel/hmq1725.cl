@@ -347,7 +347,8 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
 }
 
 
-  if ((hash.h4[0] & 24) != 0)
+	bool dec = ((hash.h4[0] & 24) != 0);
+//  if ((hash.h4[0] & 24) != 0)
   {
     // groestl
     sph_u64 H[16];
@@ -389,9 +390,9 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
     for (unsigned int u = 0; u < 16; u ++)
       H[u] ^= xH[u];
     for (unsigned int u = 0; u < 8; u ++)
-      hash.h8[u] = (H[u + 8]);
+      hash.h8[u] = (dec ? (H[u + 8]) : hash.h8[u]);
   }
-  else
+//  else
   {
     // skein
     sph_u64 h0 = SPH_C64(0x4903ADFF749C51CE), h1 = SPH_C64(0x0D95DE399746DF03), h2 = SPH_C64(0x8FD1934127C79BCE), h3 = SPH_C64(0x9A255629FF352CB1), h4 = SPH_C64(0x5DB62599DF6CA7B0), h5 = SPH_C64(0xEABE394CA9D5C3F4), h6 = SPH_C64(0x991112C71A75B523), h7 = SPH_C64(0xAE18A40B660FCC33);
@@ -410,14 +411,14 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
     bcount = 0;
     m0 = m1 = m2 = m3 = m4 = m5 = m6 = m7 = 0;
     UBI_BIG(510, 8);
-    hash.h8[0] = (h0);
-    hash.h8[1] = (h1);
-    hash.h8[2] = (h2);
-    hash.h8[3] = (h3);
-    hash.h8[4] = (h4);
-    hash.h8[5] = (h5);
-    hash.h8[6] = (h6);
-    hash.h8[7] = (h7);
+    hash.h8[0] = (!dec ? (h0) : hash.h8[0]);
+    hash.h8[1] = (!dec ? (h1) : hash.h8[1]);
+    hash.h8[2] = (!dec ? (h2) : hash.h8[2]);
+    hash.h8[3] = (!dec ? (h3) : hash.h8[3]);
+    hash.h8[4] = (!dec ? (h4) : hash.h8[4]);
+    hash.h8[5] = (!dec ? (h5) : hash.h8[5]);
+    hash.h8[6] = (!dec ? (h6) : hash.h8[6]);
+    hash.h8[7] = (!dec ? (h7) : hash.h8[7]);
   }
 
 
@@ -506,7 +507,7 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
   }
 
 
-  if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
     // blake
     sph_u64 H0 = SPH_C64(0x6A09E667F3BCC908), H1 = SPH_C64(0xBB67AE8584CAA73B);
@@ -543,16 +544,16 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
 
     COMPRESS64;
 
-    hash.h8[0] = SWAP8(H0);
-    hash.h8[1] = SWAP8(H1);
-    hash.h8[2] = SWAP8(H2);
-    hash.h8[3] = SWAP8(H3);
-    hash.h8[4] = SWAP8(H4);
-    hash.h8[5] = SWAP8(H5);
-    hash.h8[6] = SWAP8(H6);
-    hash.h8[7] = SWAP8(H7);
+    hash.h8[0] = (dec ? SWAP8(H0) : hash.h8[0]);
+    hash.h8[1] = (dec ? SWAP8(H1) : hash.h8[1]);
+    hash.h8[2] = (dec ? SWAP8(H2) : hash.h8[2]);
+    hash.h8[3] = (dec ? SWAP8(H3) : hash.h8[3]);
+    hash.h8[4] = (dec ? SWAP8(H4) : hash.h8[4]);
+    hash.h8[5] = (dec ? SWAP8(H5) : hash.h8[5]);
+    hash.h8[6] = (dec ? SWAP8(H6) : hash.h8[6]);
+    hash.h8[7] = (dec ? SWAP8(H7) : hash.h8[7]);
   }
-  else
+  //else
   {
     // bmw
     sph_u64 BMW_H[16];
@@ -598,14 +599,14 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
   #undef H
   #undef dH
 
-    hash.h8[0] = (BMW_h1[8]);
-    hash.h8[1] = (BMW_h1[9]);
-    hash.h8[2] = (BMW_h1[10]);
-    hash.h8[3] = (BMW_h1[11]);
-    hash.h8[4] = (BMW_h1[12]);
-    hash.h8[5] = (BMW_h1[13]);
-    hash.h8[6] = (BMW_h1[14]);
-    hash.h8[7] = (BMW_h1[15]);
+    hash.h8[0] = (!dec ? BMW_h1[8]  : hash.h8[0]);
+    hash.h8[1] = (!dec ? BMW_h1[9]  : hash.h8[1]);
+    hash.h8[2] = (!dec ? BMW_h1[10] : hash.h8[2]);
+    hash.h8[3] = (!dec ? BMW_h1[11] : hash.h8[3]);
+    hash.h8[4] = (!dec ? BMW_h1[12] : hash.h8[4]);
+    hash.h8[5] = (!dec ? BMW_h1[13] : hash.h8[5]);
+    hash.h8[6] = (!dec ? BMW_h1[14] : hash.h8[6]);
+    hash.h8[7] = (!dec ? BMW_h1[15] : hash.h8[7]);
   }
 
 // luffa
@@ -740,7 +741,7 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
 }
 
 
-  if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
     // keccak
     sph_u64 a00 = 0, a01 = 0, a02 = 0, a03 = 0, a04 = 0;
@@ -770,16 +771,16 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
     a10 = ~a10;
     a20 = ~a20;
 
-    hash.h8[0] = (a00);
-    hash.h8[1] = (a10);
-    hash.h8[2] = (a20);
-    hash.h8[3] = (a30);
-    hash.h8[4] = (a40);
-    hash.h8[5] = (a01);
-    hash.h8[6] = (a11);
-    hash.h8[7] = (a21);
+    hash.h8[0] = (dec ? a00 : hash.h8[0]);
+    hash.h8[1] = (dec ? a10 : hash.h8[1]);
+    hash.h8[2] = (dec ? a20 : hash.h8[2]);
+    hash.h8[3] = (dec ? a30 : hash.h8[3]);
+    hash.h8[4] = (dec ? a40 : hash.h8[4]);
+    hash.h8[5] = (dec ? a01 : hash.h8[5]);
+    hash.h8[6] = (dec ? a11 : hash.h8[6]);
+    hash.h8[7] = (dec ? a21 : hash.h8[7]);
   }
-  else
+//  else
   {
     // jh
     sph_u64 h0h = C64e(0x6fd14b963e00aa17), h0l = C64e(0x636a2e057a15d543), h1h = C64e(0x8a225e8d0c97ef0b), h1l = C64e(0xe9341259f2b3c361), h2h = C64e(0x891da0c1536f801e), h2l = C64e(0x2aa9056bea2b6d80), h3h = C64e(0x588eccdb2075baa6), h3l = C64e(0xa90f3a76baf83bf7);
@@ -815,14 +816,14 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
     h4h ^= 0x80;
     h7l ^= 0x2000000000000;
 
-    hash.h8[0] = (h4h);
-    hash.h8[1] = (h4l);
-    hash.h8[2] = (h5h);
-    hash.h8[3] = (h5l);
-    hash.h8[4] = (h6h);
-    hash.h8[5] = (h6l);
-    hash.h8[6] = (h7h);
-    hash.h8[7] = (h7l);
+    hash.h8[0] = (!dec ? h4h : hash.h8[0]);
+    hash.h8[1] = (!dec ? h4l : hash.h8[1]);
+    hash.h8[2] = (!dec ? h5h : hash.h8[2]);
+    hash.h8[3] = (!dec ? h5l : hash.h8[3]);
+    hash.h8[4] = (!dec ? h6h : hash.h8[4]);
+    hash.h8[5] = (!dec ? h6l : hash.h8[5]);
+    hash.h8[6] = (!dec ? h7h : hash.h8[6]);
+    hash.h8[7] = (!dec ? h7l : hash.h8[7]);
   }
 
 
@@ -1007,7 +1008,7 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
 }
 
 
-   if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
     // whirlpool
   sph_u64 n0, n1, n2, n3, n4, n5, n6, n7;
@@ -1097,9 +1098,9 @@ __kernel void search(__global unsigned char* block, volatile __global uint* outp
   state[7] ^= n7 ^ 0x2000000000000;
 
   for (unsigned i = 0; i < 8; i ++)
-    hash.h8[i] = state[i];
+    hash.h8[i] = (dec ? state[i] : hash.h8[i]);
 }
-else
+//else
 {
    // Haval
   sph_u32 s0 = SPH_C32(0x243F6A88);
@@ -1136,18 +1137,18 @@ else
 #define A(x) X_var[x]
   CORE5(A);
 
-  hash.h4[0] = s0;
-  hash.h4[1] = s1;
-  hash.h4[2] = s2;
-  hash.h4[3] = s3;
-  hash.h4[4] = s4;
-  hash.h4[5] = s5;
-  hash.h4[6] = s6;
-  hash.h4[7] = s7;
-  hash.h8[4] = 0;
-  hash.h8[5] = 0;
-  hash.h8[6] = 0;
-  hash.h8[7] = 0;
+  hash.h4[0] = (!dec ? s0 : hash.h4[0]);
+  hash.h4[1] = (!dec ? s1 : hash.h4[1]);
+  hash.h4[2] = (!dec ? s2 : hash.h4[2]);
+  hash.h4[3] = (!dec ? s3 : hash.h4[3]);
+  hash.h4[4] = (!dec ? s4 : hash.h4[4]);
+  hash.h4[5] = (!dec ? s5 : hash.h4[5]);
+  hash.h4[6] = (!dec ? s6 : hash.h4[6]);
+  hash.h4[7] = (!dec ? s7 : hash.h4[7]);
+  hash.h8[4] = (!dec ? 0 : hash.h8[4]);
+  hash.h8[5] = (!dec ? 0 : hash.h8[5]);
+  hash.h8[6] = (!dec ? 0 : hash.h8[6]);
+  hash.h8[7] = (!dec ? 0 : hash.h8[7]);
 }
 
 // echo
@@ -1256,7 +1257,7 @@ else
   }
 
 
-  if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
 // shavite
   // IV
@@ -1297,24 +1298,24 @@ else
 
   c512(buf);
 
-  hash.h4[0] = h0;
-  hash.h4[1] = h1;
-  hash.h4[2] = h2;
-  hash.h4[3] = h3;
-  hash.h4[4] = h4;
-  hash.h4[5] = h5;
-  hash.h4[6] = h6;
-  hash.h4[7] = h7;
-  hash.h4[8] = h8;
-  hash.h4[9] = h9;
-  hash.h4[10] = hA;
-  hash.h4[11] = hB;
-  hash.h4[12] = hC;
-  hash.h4[13] = hD;
-  hash.h4[14] = hE;
-  hash.h4[15] = hF;
+  hash.h4[0]  = (dec ? h0 : hash.h4[0]);
+  hash.h4[1]  = (dec ? h1 : hash.h4[1]);
+  hash.h4[2]  = (dec ? h2 : hash.h4[2]);
+  hash.h4[3]  = (dec ? h3 : hash.h4[3]);
+  hash.h4[4]  = (dec ? h4 : hash.h4[4]);
+  hash.h4[5]  = (dec ? h5 : hash.h4[5]);
+  hash.h4[6]  = (dec ? h6 : hash.h4[6]);
+  hash.h4[7]  = (dec ? h7 : hash.h4[7]);
+  hash.h4[8]  = (dec ? h8 : hash.h4[8]);
+  hash.h4[9]  = (dec ? h9 : hash.h4[9]);
+  hash.h4[10] = (dec ? hA : hash.h4[10]);
+  hash.h4[11] = (dec ? hB : hash.h4[11]);
+  hash.h4[12] = (dec ? hC : hash.h4[12]);
+  hash.h4[13] = (dec ? hD : hash.h4[13]);
+  hash.h4[14] = (dec ? hE : hash.h4[14]);
+  hash.h4[15] = (dec ? hF : hash.h4[15]);
 }
-else
+//else
 {
   for (unsigned int u = 0; u < 8; u ++) hash.h8[u] = SWAP8(hash.h8[u]);
     // luffa
@@ -1361,25 +1362,25 @@ else
       M0 = M1 = M2 = M3 = M4 = M5 = M6 = M7 = 0;
     else if(i == 3)
     {
-      hash.h4[1] = V00 ^ V10 ^ V20 ^ V30 ^ V40;
-      hash.h4[0] = V01 ^ V11 ^ V21 ^ V31 ^ V41;
-      hash.h4[3] = V02 ^ V12 ^ V22 ^ V32 ^ V42;
-      hash.h4[2] = V03 ^ V13 ^ V23 ^ V33 ^ V43;
-      hash.h4[5] = V04 ^ V14 ^ V24 ^ V34 ^ V44;
-      hash.h4[4] = V05 ^ V15 ^ V25 ^ V35 ^ V45;
-      hash.h4[7] = V06 ^ V16 ^ V26 ^ V36 ^ V46;
-      hash.h4[6] = V07 ^ V17 ^ V27 ^ V37 ^ V47;
+      hash.h4[1] = (!dec ? V00 ^ V10 ^ V20 ^ V30 ^ V40 : hash.h4[1]);
+      hash.h4[0] = (!dec ? V01 ^ V11 ^ V21 ^ V31 ^ V41 : hash.h4[0]);
+      hash.h4[3] = (!dec ? V02 ^ V12 ^ V22 ^ V32 ^ V42 : hash.h4[3]);
+      hash.h4[2] = (!dec ? V03 ^ V13 ^ V23 ^ V33 ^ V43 : hash.h4[2]);
+      hash.h4[5] = (!dec ? V04 ^ V14 ^ V24 ^ V34 ^ V44 : hash.h4[5]);
+      hash.h4[4] = (!dec ? V05 ^ V15 ^ V25 ^ V35 ^ V45 : hash.h4[4]);
+      hash.h4[7] = (!dec ? V06 ^ V16 ^ V26 ^ V36 ^ V46 : hash.h4[7]);
+      hash.h4[6] = (!dec ? V07 ^ V17 ^ V27 ^ V37 ^ V47 : hash.h4[6]);
     }
   }
 
-  hash.h4[9] = V00 ^ V10 ^ V20 ^ V30 ^ V40;
-  hash.h4[8] = V01 ^ V11 ^ V21 ^ V31 ^ V41;
-  hash.h4[11] = V02 ^ V12 ^ V22 ^ V32 ^ V42;
-  hash.h4[10] = V03 ^ V13 ^ V23 ^ V33 ^ V43;
-  hash.h4[13] = V04 ^ V14 ^ V24 ^ V34 ^ V44;
-  hash.h4[12] = V05 ^ V15 ^ V25 ^ V35 ^ V45;
-  hash.h4[15] = V06 ^ V16 ^ V26 ^ V36 ^ V46;
-  hash.h4[14] = V07 ^ V17 ^ V27 ^ V37 ^ V47;
+  hash.h4[9]  = (!dec ? V00 ^ V10 ^ V20 ^ V30 ^ V40 : hash.h4[9]);
+  hash.h4[8]  = (!dec ? V01 ^ V11 ^ V21 ^ V31 ^ V41 : hash.h4[8]);
+  hash.h4[11] = (!dec ? V02 ^ V12 ^ V22 ^ V32 ^ V42 : hash.h4[11]);
+  hash.h4[10] = (!dec ? V03 ^ V13 ^ V23 ^ V33 ^ V43 : hash.h4[10]);
+  hash.h4[13] = (!dec ? V04 ^ V14 ^ V24 ^ V34 ^ V44 : hash.h4[13]);
+  hash.h4[12] = (!dec ? V05 ^ V15 ^ V25 ^ V35 ^ V45 : hash.h4[12]);
+  hash.h4[15] = (!dec ? V06 ^ V16 ^ V26 ^ V36 ^ V46 : hash.h4[15]);
+  hash.h4[14] = (!dec ? V07 ^ V17 ^ V27 ^ V37 ^ V47 : hash.h4[14]);
 
 	for (unsigned int u = 0; u < 8; u ++) hash.h8[u] = SWAP8(hash.h8[u]);
 }
@@ -1509,7 +1510,7 @@ else
 }
 
 
-  if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
     // echo
   sph_u64 W00, W01, W10, W11, W20, W21, W30, W31, W40, W41, W50, W51, W60, W61, W70, W71, W80, W81, W90, W91, WA0, WA1, WB0, WB1, WC0, WC1, WD0, WD1, WE0, WE1, WF0, WF1;
@@ -1558,16 +1559,16 @@ else
   for (unsigned u = 0; u < 10; u ++)
     BIG_ROUND;
 
-  hash.h8[0] = hash.h8[0] ^ Vb00 ^ W00 ^ W80;
-  hash.h8[1] = hash.h8[1] ^ Vb01 ^ W01 ^ W81;
-  hash.h8[2] = hash.h8[2] ^ Vb10 ^ W10 ^ W90;
-  hash.h8[3] = hash.h8[3] ^ Vb11 ^ W11 ^ W91;
-  hash.h8[4] = hash.h8[4] ^ Vb20 ^ W20 ^ WA0;
-  hash.h8[5] = hash.h8[5] ^ Vb21 ^ W21 ^ WA1;
-  hash.h8[6] = hash.h8[6] ^ Vb30 ^ W30 ^ WB0;
-  hash.h8[7] = hash.h8[7] ^ Vb31 ^ W31 ^ WB1;
+  hash.h8[0] = (dec ? hash.h8[0] ^ Vb00 ^ W00 ^ W80 : hash.h8[0]);
+  hash.h8[1] = (dec ? hash.h8[1] ^ Vb01 ^ W01 ^ W81 : hash.h8[1]);
+  hash.h8[2] = (dec ? hash.h8[2] ^ Vb10 ^ W10 ^ W90 : hash.h8[2]);
+  hash.h8[3] = (dec ? hash.h8[3] ^ Vb11 ^ W11 ^ W91 : hash.h8[3]);
+  hash.h8[4] = (dec ? hash.h8[4] ^ Vb20 ^ W20 ^ WA0 : hash.h8[4]);
+  hash.h8[5] = (dec ? hash.h8[5] ^ Vb21 ^ W21 ^ WA1 : hash.h8[5]);
+  hash.h8[6] = (dec ? hash.h8[6] ^ Vb30 ^ W30 ^ WB0 : hash.h8[6]);
+  hash.h8[7] = (dec ? hash.h8[7] ^ Vb31 ^ W31 ^ WB1 : hash.h8[7]);
 }
-else
+//else
 {
  // simd
   s32 q[256];
@@ -1672,22 +1673,22 @@ else
 
   #undef q
 
-  hash.h4[0] = A0;
-  hash.h4[1] = A1;
-  hash.h4[2] = A2;
-  hash.h4[3] = A3;
-  hash.h4[4] = A4;
-  hash.h4[5] = A5;
-  hash.h4[6] = A6;
-  hash.h4[7] = A7;
-  hash.h4[8] = B0;
-  hash.h4[9] = B1;
-  hash.h4[10] = B2;
-  hash.h4[11] = B3;
-  hash.h4[12] = B4;
-  hash.h4[13] = B5;
-  hash.h4[14] = B6;
-  hash.h4[15] = B7;
+  hash.h4[0] =  (!dec ? A0 : hash.h4[0]);
+  hash.h4[1] =  (!dec ? A1 : hash.h4[1]);
+  hash.h4[2] =  (!dec ? A2 : hash.h4[2]);
+  hash.h4[3] =  (!dec ? A3 : hash.h4[3]);
+  hash.h4[4] =  (!dec ? A4 : hash.h4[4]);
+  hash.h4[5] =  (!dec ? A5 : hash.h4[5]);
+  hash.h4[6] =  (!dec ? A6 : hash.h4[6]);
+  hash.h4[7] =  (!dec ? A7 : hash.h4[7]);
+  hash.h4[8] =  (!dec ? B0 : hash.h4[8]);
+  hash.h4[9] =  (!dec ? B1 : hash.h4[9]);
+  hash.h4[10] = (!dec ? B2 : hash.h4[10]);
+  hash.h4[11] = (!dec ? B3 : hash.h4[11]);
+  hash.h4[12] = (!dec ? B4 : hash.h4[12]);
+  hash.h4[13] = (!dec ? B5 : hash.h4[13]);
+  hash.h4[14] = (!dec ? B6 : hash.h4[14]);
+  hash.h4[15] = (!dec ? B7 : hash.h4[15]);
 }
 
 
@@ -1851,7 +1852,7 @@ else
 }
 
 
-  if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
    // fugue
 	for (unsigned int u = 0; u < 16; u ++) hash.h4[u] = SWAP4(hash.h4[u]);
@@ -1919,24 +1920,24 @@ else
   S18 ^= S00;
   S27 ^= S00;
 
-  hash.h4[0] = SWAP4(S01);
-  hash.h4[1] = SWAP4(S02);
-  hash.h4[2] = SWAP4(S03);
-  hash.h4[3] = SWAP4(S04);
-  hash.h4[4] = SWAP4(S09);
-  hash.h4[5] = SWAP4(S10);
-  hash.h4[6] = SWAP4(S11);
-  hash.h4[7] = SWAP4(S12);
-  hash.h4[8] = SWAP4(S18);
-  hash.h4[9] = SWAP4(S19);
-  hash.h4[10] = SWAP4(S20);
-  hash.h4[11] = SWAP4(S21);
-  hash.h4[12] = SWAP4(S27);
-  hash.h4[13] = SWAP4(S28);
-  hash.h4[14] = SWAP4(S29);
-  hash.h4[15] = SWAP4(S30);
+  hash.h4[0] = SWAP4( dec ? S01 : hash.h4[0]);
+  hash.h4[1] = SWAP4( dec ? S02 : hash.h4[1]);
+  hash.h4[2] = SWAP4( dec ? S03 : hash.h4[2]);
+  hash.h4[3] = SWAP4( dec ? S04 : hash.h4[3]);
+  hash.h4[4] = SWAP4( dec ? S09 : hash.h4[4]);
+  hash.h4[5] = SWAP4( dec ? S10 : hash.h4[5]);
+  hash.h4[6] = SWAP4( dec ? S11 : hash.h4[6]);
+  hash.h4[7] = SWAP4( dec ? S12 : hash.h4[7]);
+  hash.h4[8] = SWAP4( dec ? S18 : hash.h4[8]);
+  hash.h4[9] = SWAP4( dec ? S19 : hash.h4[9]);
+  hash.h4[10] = SWAP4(dec ? S20 : hash.h4[10]);
+  hash.h4[11] = SWAP4(dec ? S21 : hash.h4[11]);
+  hash.h4[12] = SWAP4(dec ? S27 : hash.h4[12]);
+  hash.h4[13] = SWAP4(dec ? S28 : hash.h4[13]);
+  hash.h4[14] = SWAP4(dec ? S29 : hash.h4[14]);
+  hash.h4[15] = SWAP4(dec ? S30 : hash.h4[15]);
 }
-else
+//else
 {
    // Sha2big
   sph_u64 W[80];
@@ -1966,7 +1967,7 @@ else
   SHA3_ROUND_BODY(state);
 
   for (int i = 0; i < 8; i++)
-    hash.h8[i] = SWAP8(state[i]);
+    hash.h8[i] = (!dec ? SWAP8(state[i]) : hash.h8[i]);
 }
 
 
@@ -2047,7 +2048,7 @@ else
 }
 
 
-  if ((hash.h4[0] & 24) != 0)
+  dec = ((hash.h4[0] & 24) != 0);
   {
 // Haval
   sph_u32 s0 = SPH_C32(0x243F6A88);
@@ -2084,20 +2085,20 @@ else
 #define A(x) X_var[x]
   CORE5(A);
 
-  hash.h4[0] = s0;
-  hash.h4[1] = s1;
-  hash.h4[2] = s2;
-  hash.h4[3] = s3;
-  hash.h4[4] = s4;
-  hash.h4[5] = s5;
-  hash.h4[6] = s6;
-  hash.h4[7] = s7;
-  hash.h8[4] = 0;
-  hash.h8[5] = 0;
-  hash.h8[6] = 0;
-  hash.h8[7] = 0;
+  hash.h4[0] = (dec ? s0 : hash.h4[0]);
+  hash.h4[1] = (dec ? s1 : hash.h4[1]);
+  hash.h4[2] = (dec ? s2 : hash.h4[2]);
+  hash.h4[3] = (dec ? s3 : hash.h4[3]);
+  hash.h4[4] = (dec ? s4 : hash.h4[4]);
+  hash.h4[5] = (dec ? s5 : hash.h4[5]);
+  hash.h4[6] = (dec ? s6 : hash.h4[6]);
+  hash.h4[7] = (dec ? s7 : hash.h4[7]);
+  hash.h8[4] = (dec ? 0 : hash.h8[4]);
+  hash.h8[5] = (dec ? 0 : hash.h8[5]);
+  hash.h8[6] = (dec ? 0 : hash.h8[6]);
+  hash.h8[7] = (dec ? 0 : hash.h8[7]);
 }
-else
+//else
 {
    // whirlpool
   sph_u64 n0, n1, n2, n3, n4, n5, n6, n7;
@@ -2187,7 +2188,7 @@ else
   state[7] ^= n7 ^ 0x2000000000000;
 
   for (unsigned i = 0; i < 8; i ++)
-    hash.h8[i] = state[i];
+    hash.h8[i] = (!dec ? state[i] : hash.h8[i]);
 }
 
 // bmw
